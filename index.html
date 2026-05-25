@@ -182,10 +182,6 @@ button,input,select{font-family:inherit;cursor:pointer}
       <div class="f-label">SANA</div>
       <input class="f-input" id="f-date" type="date">
     </div>
-    <div class="f-row">
-      <div class="f-label">TARTIB RAQAMI (birinchi=1, ikkinchi=2...)</div>
-      <input class="f-input" id="f-order" type="number" placeholder="1" min="1" value="1">
-    </div>
     <button class="btn-add" id="btn-add" onclick="addTxn()">+ Qo'shish</button>
   </div>
 </div>
@@ -238,7 +234,7 @@ function showToast(msg, duration=2500){
 }
 
 // ─── FIRESTORE REALTIME ───
-const q = query(txnCol, orderBy('createdAt', 'asc'));
+const q = query(txnCol, orderBy('date', 'desc'), orderBy('createdAt', 'asc'));
 setLoading(true);
 
 onSnapshot(q, (snapshot) => {
@@ -274,7 +270,6 @@ window.openModal = function(){
   document.getElementById('modal-bg').classList.add('open');
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('f-amount').value = '';
-  document.getElementById('f-order').value = '1';
 };
 
 window.closeModal = function(){
@@ -285,7 +280,6 @@ window.addTxn = async function(){
   const amt = parseFloat(document.getElementById('f-amount').value) || 0;
   const cat = document.getElementById('f-cat').value;
   const date = document.getElementById('f-date').value;
-  const order = parseInt(document.getElementById('f-order').value) || 1;
   if(!amt || !date){ showToast('⚠️ Summa va sanani kiriting!'); return; }
 
   const btn = document.getElementById('btn-add');
@@ -299,7 +293,6 @@ window.addTxn = async function(){
       desc: cat,
       cat,
       date,
-      order,
       createdAt: Date.now()
     });
     closeModal();
@@ -369,7 +362,7 @@ function render(){
   const catMap = getCatMap();
   wrap.innerHTML = sortedDates.map(date => {
     // bir xil sanada createdAt bo'yicha tartiblash
-    const items = groups[date].sort((a,b) => (a.order||a.createdAt||0) - (b.order||b.createdAt||0));
+    const items = groups[date]; // Firestore allaqachon createdAt bo'yicha tartiblab bergan
     const parts = date.split('-');
     const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
     const dayInc = items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
