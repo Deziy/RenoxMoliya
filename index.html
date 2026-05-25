@@ -234,7 +234,7 @@ function showToast(msg, duration=2500){
 }
 
 // ─── FIRESTORE REALTIME ───
-const q = query(txnCol, orderBy('date', 'desc'), orderBy('createdAt', 'asc'));
+const q = query(txnCol, orderBy('createdAt', 'asc'));
 setLoading(true);
 
 onSnapshot(q, (snapshot) => {
@@ -362,7 +362,7 @@ function render(){
   const catMap = getCatMap();
   wrap.innerHTML = sortedDates.map(date => {
     // bir xil sanada createdAt bo'yicha tartiblash
-    const items = groups[date]; // Firestore allaqachon createdAt bo'yicha tartiblab bergan
+    const items = groups[date].sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
     const parts = date.split('-');
     const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
     const dayInc = items.filter(x=>x.type==='income').reduce((s,x)=>s+x.amount,0);
