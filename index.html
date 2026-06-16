@@ -166,12 +166,14 @@ input  { font-family:inherit; }
 .nav-brand-name { font-size:15px; font-weight:700; letter-spacing:-.3px; }
 .nav-brand-name em { font-style:normal; color:var(--jade); }
 
-/* Reel_50: account switcher as liquid pill group */
+/* Account tabs — clickable pill group */
 .nav-acc-liquid {
   flex:1;
   display:flex; align-items:center;
   justify-content:center;
   position:relative;
+  overflow:hidden;
+  min-width:0;
 }
 /* pill track */
 .nav-items {
@@ -182,38 +184,43 @@ input  { font-family:inherit; }
   padding:4px;
   gap:2px;
   position:relative;
+  overflow-x:auto;
+  max-width:100%;
+  scrollbar-width:none;
 }
+.nav-items::-webkit-scrollbar { display:none; }
+
 /* Reel_50: sliding active pill */
 .active-pill {
   position:absolute;
   top:4px; left:4px;
   height:calc(100% - 8px);
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.20);
   border-radius:var(--rf);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 2px 8px rgba(0,0,0,.3);
-  transition:left 0.28s cubic-bezier(.34,1.56,.64,1), width 0.28s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 2px 8px rgba(0,0,0,.3);
+  transition:left 0.30s cubic-bezier(.34,1.56,.64,1), width 0.30s cubic-bezier(.34,1.56,.64,1);
   pointer-events:none;
   z-index:0;
 }
-.nav-acc-btn-liq {
-  width:28px; height:28px; border-radius:var(--rf);
+
+/* Each account as a tappable button */
+.nav-acc-tab {
+  display:flex; align-items:center; gap:5px;
+  padding:5px 11px;
+  border-radius:var(--rf);
+  font-size:12px; font-weight:600; letter-spacing:-.1px;
   color:var(--t3);
-  display:flex; align-items:center; justify-content:center;
-  transition:all var(--dur-fast) var(--ease-out);
-  touch-action:manipulation; flex-shrink:0;
+  white-space:nowrap;
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:color var(--dur-fast) var(--ease-out);
   position:relative; z-index:1;
+  flex-shrink:0;
 }
-.nav-acc-btn-liq:hover { color:var(--t1); background:rgba(255,255,255,.06); }
-.nav-acc-btn-liq:active { transform:scale(.82); }
-.nav-acc-name-liq {
-  font-size:13px; font-weight:600; letter-spacing:-.2px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  max-width:130px;
-  padding:0 var(--sp2);
-  position:relative; z-index:1;
-  cursor:default;
-}
+.nav-acc-tab:hover { color:var(--t2); }
+.nav-acc-tab.active { color:var(--t1); }
+.nav-acc-tab:active { transform:scale(.94); }
 
 /* Right controls */
 .nav-right { display:flex; align-items:center; gap:var(--sp2); flex-shrink:0; }
@@ -436,7 +443,8 @@ input  { font-family:inherit; }
   .overlay { padding:0; align-items:flex-end; }
   .sheet { border-radius:var(--r5) var(--r5) 0 0; max-width:100%; padding:var(--sp6); }
   .nav { padding:7px 8px; }
-  .nav-acc-name-liq { max-width:90px; }
+  .nav-acc-liquid { max-width:180px; }
+  .nav-acc-tab { font-size:11px; padding:5px 9px; }
   .tx-del { opacity:1; }
   .hero-title { letter-spacing:-1.2px; }
   .user-drop { left:var(--sp4); right:var(--sp4); transform:none; }
@@ -481,21 +489,11 @@ input  { font-family:inherit; }
       <span class="nav-brand-name">Renox<em>Moliya</em></span>
     </div>
 
-    <!-- Reel_50: account switcher as liquid pill -->
+    <!-- Account tabs — bosib tanlash -->
     <div class="nav-acc-liquid">
-      <div class="nav-items" id="nav-items" role="group" aria-label="Hisob tanlash">
-        <!-- Sliding pill (Reel_50 active-pill) -->
+      <div class="nav-items" id="nav-items" role="tablist" aria-label="Hisob tanlash">
         <div class="active-pill" id="active-pill" aria-hidden="true"></div>
-
-        <button class="nav-acc-btn-liq" onclick="prevAcc()" aria-label="Oldingi hisob">
-          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-
-        <span class="nav-acc-name-liq" id="acc-name">–</span>
-
-        <button class="nav-acc-btn-liq" onclick="nextAcc()" aria-label="Keyingi hisob">
-          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
+        <!-- tabs renderNavTabs() orqali to'ldiriladi -->
       </div>
     </div>
 
@@ -752,16 +750,33 @@ const CSVG = {
 };
 const svgi=(p,s=15)=>`<svg width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 
-/* ── Reel_50: liquid pill animation ── */
+/* ── Reel_50: liquid pill — tab version ── */
+function renderNavTabs() {
+  const track = document.getElementById('nav-items');
+  if (!track) return;
+  // tabs
+  const tabs = accounts.map((a, i) => `
+    <button class="nav-acc-tab${i === ai ? ' active' : ''}"
+      id="nav-tab-${i}"
+      onclick="switchAccNav(${i})"
+      role="tab" aria-selected="${i === ai}"
+      aria-label="${esc(a.name)} hisobi">
+      ${esc(a.name)}
+    </button>`).join('');
+  // keep pill, replace tabs
+  track.innerHTML = `<div class="active-pill" id="active-pill" aria-hidden="true"></div>${tabs}`;
+  requestAnimationFrame(updatePill);
+}
+
 function updatePill() {
-  const nameEl = document.getElementById('acc-name');
-  const pill   = document.getElementById('active-pill');
-  const track  = document.getElementById('nav-items');
-  if (!nameEl || !pill || !track) return;
+  const pill  = document.getElementById('active-pill');
+  const track = document.getElementById('nav-items');
+  const tab   = document.getElementById('nav-tab-' + ai);
+  if (!pill || !track || !tab) return;
   const trackRect = track.getBoundingClientRect();
-  const nameRect  = nameEl.getBoundingClientRect();
-  pill.style.left  = (nameRect.left - trackRect.left - 4) + 'px';
-  pill.style.width = (nameRect.width + 8) + 'px';
+  const tabRect   = tab.getBoundingClientRect();
+  pill.style.left  = (tabRect.left - trackRect.left - 4) + 'px';
+  pill.style.width = (tabRect.width + 8) + 'px';
 }
 
 window.addEventListener('scroll',()=>{
@@ -874,13 +889,9 @@ async function migrateOld(nid){
 
 const cur=()=>accounts[ai]||accounts[0];
 function setAccUI(){
-  const a=cur();
-  if(a) document.getElementById('acc-name').textContent=a.name;
-  // Reel_50: update sliding pill after text changes
-  requestAnimationFrame(updatePill);
+  renderNavTabs();
 }
-function prevAcc(){if(accounts.length<2)return;ai=(ai-1+accounts.length)%accounts.length;setAccUI();subTxs();}
-function nextAcc(){if(accounts.length<2)return;ai=(ai+1)%accounts.length;setAccUI();subTxs();}
+function switchAccNav(i){ ai=i; setAccUI(); subTxs(); }
 
 function openAccModal(){renderAccList();document.getElementById('acc-ov').classList.add('on');}
 function closeAcc(){document.getElementById('acc-ov').classList.remove('on');document.getElementById('new-acc').value='';}
