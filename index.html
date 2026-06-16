@@ -83,7 +83,9 @@ input  { font-family:inherit; }
 .glass::before { content:''; position:absolute; inset:0; background:var(--glass-specular); border-radius:inherit; pointer-events:none; z-index:1; }
 .glass > * { position:relative; z-index:2; }
 
-/* NAVBAR — hidden until logged in */
+/* ══════════════════════════════════════════
+   LIQUID NAVBAR  (Reel_50 + RenoxMoliya)
+══════════════════════════════════════════ */
 .nav-wrap {
   position:fixed; top:0; left:0; right:0; z-index:100;
   display:flex; justify-content:center;
@@ -93,6 +95,8 @@ input  { font-family:inherit; }
   transition:opacity var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out);
 }
 .nav-wrap.visible { opacity:1; transform:translateY(0); pointer-events:all; }
+
+/* Liquid nav shell */
 .nav {
   display:flex; align-items:center; gap:var(--sp3);
   background:rgba(255,255,255,.08);
@@ -100,36 +104,166 @@ input  { font-family:inherit; }
   -webkit-backdrop-filter:var(--glass-blur-nav);
   border:1px solid var(--glass-border-hi);
   border-radius:var(--rf);
-  padding:8px 16px;
+  padding:8px 10px 8px 16px;
   box-shadow:var(--shadow-md), var(--glass-inner), 0 0 0 .5px rgba(255,255,255,.06);
   pointer-events:all;
   transition:all var(--dur-mid) var(--ease-out);
-  max-width:640px; width:100%;
+  max-width:660px; width:100%;
   position:relative; overflow:hidden;
 }
-.nav::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 50%, transparent 100%); pointer-events:none; }
-.nav.scrolled { background:rgba(10,15,46,.75); border-color:rgba(255,255,255,.10); }
+
+/* Reel_50: liquid glare overlay */
+.nav-glare-wrap {
+  position:absolute; inset:0;
+  border-radius:inherit;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:0;
+}
+.nav-glare {
+  position:absolute;
+  width:160px; height:100%;
+  top:0; left:-160px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,.08) 40%,
+    rgba(255,255,255,.14) 50%,
+    rgba(255,255,255,.08) 60%,
+    transparent 100%);
+  border-radius:inherit;
+  pointer-events:none;
+  transition:left 0.6s cubic-bezier(.16,1,.3,1), opacity 0.3s;
+  opacity:0;
+}
+.nav:hover .nav-glare { left:100%; opacity:1; }
+
+/* top specular line */
+.nav::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.03) 50%, transparent 100%);
+  pointer-events:none; z-index:0;
+}
+/* bottom glow line */
+.nav::after {
+  content:''; position:absolute;
+  bottom:0; left:15%; right:15%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(52,199,89,.4), transparent);
+  border-radius:50%;
+  box-shadow:0 0 8px rgba(52,199,89,.3);
+  pointer-events:none; z-index:0;
+}
+.nav.scrolled { background:rgba(10,15,46,.78); border-color:rgba(255,255,255,.10); }
+.nav > * { position:relative; z-index:1; }
+
+/* Brand */
 .nav-brand { display:flex; align-items:center; gap:var(--sp2); flex-shrink:0; }
-.nav-brand-icon { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, var(--jade), var(--jade-deep)); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px var(--jade-glow); }
+.nav-brand-icon {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg, var(--jade), var(--jade-deep));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 12px var(--jade-glow);
+}
 .nav-brand-name { font-size:15px; font-weight:700; letter-spacing:-.3px; }
 .nav-brand-name em { font-style:normal; color:var(--jade); }
 
-.nav-acc { flex:1; display:flex; align-items:center; justify-content:center; gap:var(--sp1); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:var(--rf); padding:5px 12px; transition:border-color var(--dur-fast) var(--ease-out); }
-.nav-acc:hover { border-color:rgba(255,255,255,.2); }
-.nav-acc-btn { width:24px; height:24px; border-radius:var(--rf); color:var(--t3); display:flex; align-items:center; justify-content:center; transition:all var(--dur-fast) var(--ease-out); touch-action:manipulation; flex-shrink:0; }
-.nav-acc-btn:hover { color:var(--t1); background:rgba(255,255,255,.08); }
-.nav-acc-btn:active { transform:scale(.85); }
-.nav-acc-name { font-size:13px; font-weight:600; letter-spacing:-.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+/* Reel_50: account switcher as liquid pill group */
+.nav-acc-liquid {
+  flex:1;
+  display:flex; align-items:center;
+  justify-content:center;
+  position:relative;
+}
+/* pill track */
+.nav-items {
+  display:flex; align-items:center;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:var(--rf);
+  padding:4px;
+  gap:2px;
+  position:relative;
+}
+/* Reel_50: sliding active pill */
+.active-pill {
+  position:absolute;
+  top:4px; left:4px;
+  height:calc(100% - 8px);
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--rf);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 2px 8px rgba(0,0,0,.3);
+  transition:left 0.28s cubic-bezier(.34,1.56,.64,1), width 0.28s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+  z-index:0;
+}
+.nav-acc-btn-liq {
+  width:28px; height:28px; border-radius:var(--rf);
+  color:var(--t3);
+  display:flex; align-items:center; justify-content:center;
+  transition:all var(--dur-fast) var(--ease-out);
+  touch-action:manipulation; flex-shrink:0;
+  position:relative; z-index:1;
+}
+.nav-acc-btn-liq:hover { color:var(--t1); background:rgba(255,255,255,.06); }
+.nav-acc-btn-liq:active { transform:scale(.82); }
+.nav-acc-name-liq {
+  font-size:13px; font-weight:600; letter-spacing:-.2px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  max-width:130px;
+  padding:0 var(--sp2);
+  position:relative; z-index:1;
+  cursor:default;
+}
 
+/* Right controls */
 .nav-right { display:flex; align-items:center; gap:var(--sp2); flex-shrink:0; }
-.nav-icon-btn { width:34px; height:34px; border-radius:var(--rf); color:var(--t2); display:flex; align-items:center; justify-content:center; transition:all var(--dur-fast) var(--ease-out); touch-action:manipulation; }
-.nav-icon-btn:hover { color:var(--t1); background:rgba(255,255,255,.08); }
+.nav-icon-btn {
+  width:34px; height:34px; border-radius:var(--rf);
+  color:var(--t2);
+  display:flex; align-items:center; justify-content:center;
+  transition:all var(--dur-fast) var(--ease-out); touch-action:manipulation;
+  position:relative; overflow:hidden;
+}
+.nav-icon-btn::before {
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background:rgba(255,255,255,0); transition:background var(--dur-fast);
+}
+.nav-icon-btn:hover::before { background:rgba(255,255,255,.08); }
+.nav-icon-btn:hover { color:var(--t1); }
 .nav-icon-btn:active { transform:scale(.88); }
-.nav-avatar { width:30px; height:30px; border-radius:var(--rf); background:linear-gradient(135deg,#1c3a28,#0a2918); border:1.5px solid var(--jade); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--jade); cursor:pointer; flex-shrink:0; overflow:hidden; box-shadow:0 0 12px rgba(52,199,89,.2); transition:box-shadow var(--dur-fast) var(--ease-out); }
-.nav-avatar:hover { box-shadow:0 0 20px rgba(52,199,89,.4); }
+
+/* Divider */
+.nav-divider {
+  width:1px; height:20px;
+  background:rgba(255,255,255,.12);
+  flex-shrink:0;
+}
+
+/* Avatar */
+.nav-avatar {
+  width:30px; height:30px; border-radius:var(--rf);
+  background:linear-gradient(135deg,#1c3a28,#0a2918);
+  border:1.5px solid var(--jade);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; color:var(--jade);
+  cursor:pointer; flex-shrink:0; overflow:hidden;
+  box-shadow:0 0 12px rgba(52,199,89,.2);
+  transition:box-shadow var(--dur-fast) var(--ease-out);
+}
+.nav-avatar:hover { box-shadow:0 0 20px rgba(52,199,89,.45); }
 .nav-avatar img { width:100%; height:100%; object-fit:cover; }
 
-.user-drop { position:fixed; top:72px; left:50%; transform:translateX(-50%); background:rgba(16,20,50,.88); backdrop-filter:var(--glass-blur-modal); -webkit-backdrop-filter:var(--glass-blur-modal); border:1px solid var(--glass-border-hi); border-radius:var(--r4); padding:var(--sp2); min-width:220px; box-shadow:var(--shadow-lg); display:none; z-index:200; animation:scaleIn 200ms var(--spring) both; }
+/* ── User dropdown ── */
+.user-drop {
+  position:fixed; top:72px; left:50%; transform:translateX(-50%);
+  background:rgba(16,20,50,.88);
+  backdrop-filter:var(--glass-blur-modal); -webkit-backdrop-filter:var(--glass-blur-modal);
+  border:1px solid var(--glass-border-hi);
+  border-radius:var(--r4); padding:var(--sp2);
+  min-width:220px; box-shadow:var(--shadow-lg);
+  display:none; z-index:200;
+  animation:scaleIn 200ms var(--spring) both;
+}
 .user-drop::before { content:''; position:absolute; inset:0; border-radius:inherit; background:var(--glass-specular); pointer-events:none; }
 .user-drop.on { display:block; }
 @keyframes scaleIn { from { opacity:0; transform:translateX(-50%) scale(.92) translateY(-8px); } to { opacity:1; transform:translateX(-50%) scale(1) translateY(0); } }
@@ -141,8 +275,6 @@ input  { font-family:inherit; }
 .drop-item:hover { background:rgba(255,255,255,.06); color:var(--t1); }
 .drop-item.red { color:rgba(255,100,90,.85); }
 .drop-item.red:hover { background:var(--red-dim); color:var(--red); }
-
-/* ── Stats row in user drop ── */
 .drop-stats { padding:var(--sp2) var(--sp4); position:relative; z-index:1; }
 .drop-stats-title { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.7px; color:var(--t3); margin-bottom:var(--sp2); }
 .drop-stats-row { display:flex; align-items:center; gap:var(--sp2); padding:8px var(--sp3); background:rgba(52,199,89,.07); border:1px solid rgba(52,199,89,.15); border-radius:var(--r2); }
@@ -150,7 +282,7 @@ input  { font-family:inherit; }
 .drop-stats-val { font-size:20px; font-weight:700; color:var(--jade); letter-spacing:-1px; }
 .drop-stats-lbl { font-size:11px; color:var(--t3); line-height:1.3; }
 
-/* AUTH */
+/* ── AUTH ── */
 #auth { min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:var(--sp6); position:relative; z-index:1; }
 .auth-card { width:100%; max-width:400px; background:rgba(255,255,255,.06); backdrop-filter:var(--glass-blur-modal); -webkit-backdrop-filter:var(--glass-blur-modal); border:1px solid var(--glass-border-hi); border-radius:var(--r5); padding:var(--sp12) var(--sp10); box-shadow:var(--shadow-xl), var(--glass-inner); text-align:center; position:relative; overflow:hidden; animation:floatIn var(--dur-slow) var(--spring) both; }
 @keyframes floatIn { from { opacity:0; transform:translateY(24px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
@@ -159,24 +291,15 @@ input  { font-family:inherit; }
 .auth-title { font-size:32px; font-weight:800; letter-spacing:-1.2px; line-height:1; margin-bottom:var(--sp3); position:relative; z-index:1; }
 .auth-title em { font-style:normal; color:var(--jade); }
 .auth-sub { font-size:15px; color:var(--t2); line-height:1.6; margin-bottom:var(--sp8); position:relative; z-index:1; }
-
-/* Auth user count badge */
-.auth-user-badge {
-  display:inline-flex; align-items:center; gap:var(--sp2);
-  background:rgba(52,199,89,.08); border:1px solid rgba(52,199,89,.2);
-  border-radius:var(--rf); padding:6px 14px;
-  font-size:12px; font-weight:500; color:var(--t2);
-  margin-bottom:var(--sp6); position:relative; z-index:1;
-}
+.auth-user-badge { display:inline-flex; align-items:center; gap:var(--sp2); background:rgba(52,199,89,.08); border:1px solid rgba(52,199,89,.2); border-radius:var(--rf); padding:6px 14px; font-size:12px; font-weight:500; color:var(--t2); margin-bottom:var(--sp6); position:relative; z-index:1; }
 .auth-user-badge strong { color:var(--jade); font-weight:700; }
-
 .btn-google { width:100%; display:flex; align-items:center; justify-content:center; gap:var(--sp3); padding:15px var(--sp6); background:rgba(255,255,255,.08); border:1px solid var(--glass-border-hi); border-radius:var(--r3); font-size:15px; font-weight:500; color:var(--t1); transition:all var(--dur-mid) var(--spring); touch-action:manipulation; min-height:52px; box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.12); position:relative; z-index:1; cursor:pointer; }
 .btn-google:hover { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.25); transform:translateY(-2px) scale(1.01); box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.15); }
 .btn-google:active { transform:scale(.98); }
 .btn-google:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 .auth-terms { font-size:12px; color:var(--t3); margin-top:var(--sp5); line-height:1.6; position:relative; z-index:1; }
 
-/* APP */
+/* ── APP ── */
 #app { display:none; min-height:100dvh; flex-direction:column; position:relative; z-index:1; }
 #app.on { display:flex; }
 .main { flex:1; padding:100px var(--sp6) var(--sp16); max-width:960px; margin:0 auto; width:100%; }
@@ -312,16 +435,16 @@ input  { font-family:inherit; }
   .stat-val { font-size:22px; }
   .overlay { padding:0; align-items:flex-end; }
   .sheet { border-radius:var(--r5) var(--r5) 0 0; max-width:100%; padding:var(--sp6); }
-  .nav { padding:7px 12px; }
-  .nav-acc { max-width:130px; }
+  .nav { padding:7px 8px; }
+  .nav-acc-name-liq { max-width:90px; }
   .tx-del { opacity:1; }
   .hero-title { letter-spacing:-1.2px; }
   .user-drop { left:var(--sp4); right:var(--sp4); transform:none; }
   .user-drop.on { animation-name:scaleInMobile; }
   @keyframes scaleInMobile { from { opacity:0; transform:scale(.92) translateY(-8px); } to { opacity:1; transform:none; } }
+  .nav-brand-name { display:none; }
 }
 @media(max-width:380px) {
-  .nav-brand-name { display:none; }
   .stat-val { font-size:19px; }
 }
 @media(prefers-reduced-motion:reduce) {
@@ -338,9 +461,16 @@ input  { font-family:inherit; }
   <div class="bg-orb bg-orb-3"></div>
 </div>
 
-<!-- NAVBAR — faqat login bo'lganda ko'rinadi -->
+<!-- ══ LIQUID NAVBAR ══ -->
 <div class="nav-wrap" role="navigation" aria-label="Asosiy navigatsiya" id="nav-wrap">
   <nav class="nav" id="nav">
+
+    <!-- Reel_50: liquid glare sweep -->
+    <div class="nav-glare-wrap" aria-hidden="true">
+      <div class="nav-glare" id="nav-glare"></div>
+    </div>
+
+    <!-- Brand -->
     <div class="nav-brand">
       <div class="nav-brand-icon" aria-hidden="true">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -351,23 +481,35 @@ input  { font-family:inherit; }
       <span class="nav-brand-name">Renox<em>Moliya</em></span>
     </div>
 
-    <div class="nav-acc" id="nav-acc" role="group" aria-label="Hisob">
-      <button class="nav-acc-btn" onclick="prevAcc()" aria-label="Oldingi hisob">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="nav-acc-name" id="acc-name">–</span>
-      <button class="nav-acc-btn" onclick="nextAcc()" aria-label="Keyingi hisob">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
+    <!-- Reel_50: account switcher as liquid pill -->
+    <div class="nav-acc-liquid">
+      <div class="nav-items" id="nav-items" role="group" aria-label="Hisob tanlash">
+        <!-- Sliding pill (Reel_50 active-pill) -->
+        <div class="active-pill" id="active-pill" aria-hidden="true"></div>
+
+        <button class="nav-acc-btn-liq" onclick="prevAcc()" aria-label="Oldingi hisob">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+
+        <span class="nav-acc-name-liq" id="acc-name">–</span>
+
+        <button class="nav-acc-btn-liq" onclick="nextAcc()" aria-label="Keyingi hisob">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
     </div>
 
+    <!-- Right controls -->
     <div class="nav-right">
       <button class="nav-icon-btn" onclick="openAccModal()" aria-label="Hisoblarni boshqarish" title="Hisoblar">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
           <rect x="2" y="5" width="20" height="14" rx="2"/>
           <path d="M2 10h20M6 15h4M14 15h4"/>
         </svg>
       </button>
+
+      <div class="nav-divider" aria-hidden="true"></div>
+
       <div class="nav-avatar" id="nav-av" onclick="toggleDrop()" role="button" tabindex="0"
            aria-label="Foydalanuvchi menyusi" aria-expanded="false" aria-haspopup="true">
         <span id="nav-av-txt">U</span>
@@ -383,14 +525,12 @@ input  { font-family:inherit; }
     <div class="drop-email" id="drop-email">–</div>
   </div>
   <div class="drop-sep"></div>
-  <!-- Foydalanuvchilar statistikasi -->
   <div class="drop-stats">
     <div class="drop-stats-title">Platforma statistikasi</div>
     <div class="drop-stats-row">
       <div class="drop-stats-ico">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
         </svg>
       </div>
@@ -402,7 +542,7 @@ input  { font-family:inherit; }
   </div>
   <div class="drop-sep"></div>
   <button class="drop-item red" onclick="signOutU()" role="menuitem">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
       <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
     </svg>
@@ -421,17 +561,13 @@ input  { font-family:inherit; }
     </div>
     <h1 class="auth-title">Renox<em>Moliya</em></h1>
     <p class="auth-sub">Moliyaviy daftaringiz.<br>Real vaqtda, barcha qurilmalarda.</p>
-
-    <!-- Foydalanuvchilar soni badge -->
     <div class="auth-user-badge" id="auth-user-badge" style="display:none">
-      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
       </svg>
       <strong id="auth-user-count">0</strong> nafar foydalanuvchi ishlatmoqda
     </div>
-
     <button class="btn-google" id="signin-btn" onclick="signInG()" aria-label="Google hisobi bilan kirish">
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -450,7 +586,7 @@ input  { font-family:inherit; }
   <main class="main" id="main-content" tabindex="-1">
     <div class="hero">
       <div class="hero-eyebrow" aria-hidden="true">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="var(--jade)" aria-hidden="true"><circle cx="5" cy="5" r="5"/></svg>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="var(--jade)"><circle cx="5" cy="5" r="5"/></svg>
         Moliyaviy daftar
       </div>
       <h1 class="hero-title">Barcha hisoblar<br><em>bir joyda</em></h1>
@@ -468,7 +604,6 @@ input  { font-family:inherit; }
         <div class="stat-val" id="s-in" aria-live="polite"><div class="skel skel-v"></div></div>
         <div class="stat-currency" id="s-in-c" aria-hidden="true"> </div>
       </div>
-
       <div class="stat-card out" role="article" aria-label="Jami chiqim">
         <div class="stat-head">
           <span class="stat-label">Chiqim</span>
@@ -479,7 +614,6 @@ input  { font-family:inherit; }
         <div class="stat-val" id="s-out" aria-live="polite"><div class="skel skel-v"></div></div>
         <div class="stat-currency" id="s-out-c" aria-hidden="true"> </div>
       </div>
-
       <div class="stat-card bal" role="article" aria-label="Joriy balans">
         <div class="stat-head">
           <span class="stat-label">Balans</span>
@@ -498,7 +632,7 @@ input  { font-family:inherit; }
         <span class="sec-pill" id="tx-cnt" aria-live="polite">0</span>
       </div>
       <button class="btn-add" onclick="openTxModal()" aria-label="Yangi tranzaksiya qo'shish">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Qo'shish
       </button>
     </div>
@@ -517,46 +651,40 @@ input  { font-family:inherit; }
     <div class="sheet-head">
       <h2 class="sheet-title" id="tx-title">Yangi tranzaksiya</h2>
       <button class="btn-close" onclick="closeTx()" aria-label="Yopish">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-
     <div class="type-toggle" role="group" aria-label="Tranzaksiya turi">
       <button class="type-btn on income" id="tb-in" onclick="setType('income')" aria-pressed="true">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         Kirim
       </button>
       <button class="type-btn expense" id="tb-out" onclick="setType('expense')" aria-pressed="false">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         Chiqim
       </button>
     </div>
-
     <div class="fg">
       <label class="fl" for="f-amt">Summa</label>
       <div class="fi-wrap">
         <div class="fi-prefix">UZS</div>
-        <input class="fi" id="f-amt" type="number" min="0" placeholder="0" inputmode="numeric" aria-label="Summa UZS da">
+        <input class="fi" id="f-amt" type="number" min="0" placeholder="0" inputmode="numeric">
       </div>
     </div>
-
     <div class="fg">
       <div class="fl" id="chips-lbl">Kategoriya</div>
       <div class="chips" id="chips" role="group" aria-labelledby="chips-lbl"></div>
     </div>
-
     <div class="fg">
       <label class="fl" for="f-note">Izoh <span style="color:var(--t4);font-size:10px;text-transform:none;letter-spacing:0">(ixtiyoriy)</span></label>
       <input class="fi" id="f-note" type="text" placeholder="Qisqacha izoh…" maxlength="80">
     </div>
-
     <div class="fg">
       <label class="fl" for="f-date">Sana</label>
-      <input class="fi" id="f-date" type="date" aria-label="Tranzaksiya sanasi">
+      <input class="fi" id="f-date" type="date">
     </div>
-
     <button class="btn-save" id="tx-sub" onclick="submitTx()">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       Saqlash
     </button>
   </div>
@@ -568,7 +696,7 @@ input  { font-family:inherit; }
     <div class="sheet-head">
       <h2 class="sheet-title" id="acc-title">Hisoblar</h2>
       <button class="btn-close" onclick="closeAcc()" aria-label="Yopish">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="acc-list" id="acc-list" role="list"></div>
@@ -600,7 +728,6 @@ const GP=new firebase.auth.GoogleAuthProvider();
 
 let user=null, accounts=[], ai=0, txType='income', cat='', unsub=null;
 
-/* ── Yangi kategoriyalar: Kirimg + Sotuv, Chiqim + Depozit ── */
 const C = {
   income: ["Maosh","Sotuv","Biznes","Freelance","Sovg'a","Investitsiya","Boshqa"],
   expense:["Oziq-ovqat","Transport","Uy","Depozit","Salomatlik","Ta'lim","Kiyim","Ko'ngilochar","Kommunal","Boshqa"]
@@ -625,6 +752,18 @@ const CSVG = {
 };
 const svgi=(p,s=15)=>`<svg width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 
+/* ── Reel_50: liquid pill animation ── */
+function updatePill() {
+  const nameEl = document.getElementById('acc-name');
+  const pill   = document.getElementById('active-pill');
+  const track  = document.getElementById('nav-items');
+  if (!nameEl || !pill || !track) return;
+  const trackRect = track.getBoundingClientRect();
+  const nameRect  = nameEl.getBoundingClientRect();
+  pill.style.left  = (nameRect.left - trackRect.left - 4) + 'px';
+  pill.style.width = (nameRect.width + 8) + 'px';
+}
+
 window.addEventListener('scroll',()=>{
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY>20);
 },{passive:true});
@@ -641,13 +780,12 @@ function signInG(){
   b.innerHTML=`${svgi('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',16)} Yuklanmoqda…`;
   auth.signInWithPopup(GP).catch(e=>{
     b.disabled=false;
-    b.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google bilan kirish`;
+    b.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google bilan kirish`;
     toast(e.message,'err');
   });
 }
 function signOutU(){ closeDrop(); auth.signOut(); }
 
-/* ── Foydalanuvchi sonini saqlash va o'qish ── */
 async function registerUser(u){
   try {
     const ref = db.collection('app_stats').doc('users');
@@ -656,12 +794,12 @@ async function registerUser(u){
       const uRef = db.collection('registered_users').doc(u.uid);
       const uDoc = await t.get(uRef);
       if(!uDoc.exists){
-        t.set(uRef, { uid: u.uid, email: u.email, name: u.displayName, joinedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        if(doc.exists){ t.update(ref, { count: (doc.data().count||0)+1 }); }
-        else { t.set(ref, { count: 1 }); }
+        t.set(uRef,{uid:u.uid,email:u.email,name:u.displayName,joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        if(doc.exists){ t.update(ref,{count:(doc.data().count||0)+1}); }
+        else { t.set(ref,{count:1}); }
       }
     });
-  } catch(e){ console.error('registerUser:', e); }
+  } catch(e){ console.error('registerUser:',e); }
 }
 
 async function loadUserCount(){
@@ -670,7 +808,7 @@ async function loadUserCount(){
     const count = snap.exists ? (snap.data().count||0) : 0;
     const el = document.getElementById('user-count');
     if(el) el.textContent = count.toLocaleString('uz-UZ');
-  } catch(e){ console.error('loadUserCount:', e); }
+  } catch(e){}
 }
 
 async function loadPublicUserCount(){
@@ -680,18 +818,14 @@ async function loadPublicUserCount(){
     if(count > 0){
       const badge = document.getElementById('auth-user-badge');
       const countEl = document.getElementById('auth-user-count');
-      if(badge && countEl){
-        countEl.textContent = count.toLocaleString('uz-UZ');
-        badge.style.display = 'inline-flex';
-      }
+      if(badge && countEl){ countEl.textContent=count.toLocaleString('uz-UZ'); badge.style.display='inline-flex'; }
     }
-  } catch(e){ console.error('loadPublicUserCount:', e); }
+  } catch(e){}
 }
 
 function showApp(u){
   document.getElementById('auth').style.display='none';
   document.getElementById('app').classList.add('on');
-  // Navbar ni ko'rsatish
   document.getElementById('nav-wrap').classList.add('visible');
   const n=u.displayName||'U';
   document.getElementById('nav-av-txt').textContent=n[0].toUpperCase();
@@ -702,13 +836,11 @@ function showApp(u){
     const av=document.getElementById('nav-av');
     av.innerHTML=`<img src="${u.photoURL}" alt="${esc(n)}">`;
   }
-  // Foydalanuvchini ro'yxatga qo'shish
   registerUser(u);
 }
 function showAuth(){
   document.getElementById('auth').style.display='flex';
   document.getElementById('app').classList.remove('on');
-  // Navbar ni yashirish
   document.getElementById('nav-wrap').classList.remove('visible');
   user=null; accounts=[];
 }
@@ -729,6 +861,7 @@ async function loadAccs(){
     ai=0; setAccUI(); subTxs();
   }catch(e){toast(e.message,'err');}
 }
+
 async function migrateOld(nid){
   try{
     const old=await uRef().collection('transactions').limit(200).get();
@@ -738,8 +871,14 @@ async function migrateOld(nid){
     await b.commit();
   }catch(e){console.error('migrate:',e);}
 }
+
 const cur=()=>accounts[ai]||accounts[0];
-function setAccUI(){const a=cur();if(a)document.getElementById('acc-name').textContent=a.name;}
+function setAccUI(){
+  const a=cur();
+  if(a) document.getElementById('acc-name').textContent=a.name;
+  // Reel_50: update sliding pill after text changes
+  requestAnimationFrame(updatePill);
+}
 function prevAcc(){if(accounts.length<2)return;ai=(ai-1+accounts.length)%accounts.length;setAccUI();subTxs();}
 function nextAcc(){if(accounts.length<2)return;ai=(ai+1)%accounts.length;setAccUI();subTxs();}
 
@@ -905,6 +1044,9 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeTx();closeAcc();closeDrop();}
 });
+
+/* ── Reel_50: resize observer for pill ── */
+window.addEventListener('resize', updatePill, { passive: true });
 
 /* ── Toast ── */
 let _tt;
